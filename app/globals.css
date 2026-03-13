@@ -1,0 +1,110 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Kenyan palette */
+  --background: #edf6f2;
+  --foreground: #0f1f1a;
+  --card: #ffffff;
+  --card-foreground: #0f1f1a;
+  --popover: #ffffff;
+  --popover-foreground: #0f1f1a;
+  --primary: #008751; /* Kenyan green */
+  --primary-foreground: #ffffff;
+  --secondary: #e3f2eb;
+  --secondary-foreground: #0f1f1a;
+  --muted: #e8f0ff;
+  --muted-foreground: #455a64;
+  --accent: #2a68af; /* UoN blue */
+  --accent-foreground: #f8fafc;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #d2e3d9;
+  --input: #f5faf7;
+  --ring: #008751;
+  --chart-1: #008751;
+  --chart-2: #2a68af;
+  --chart-3: #0ea5e9;
+  --chart-4: #f59e0b;
+  --chart-5: #10b981;
+  --radius: 0.75rem;
+  --sidebar: #f4fbf7;
+  --sidebar-foreground: #0f1f1a;
+  --sidebar-primary: #008751;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e0f2ec;
+  --sidebar-accent-foreground: #0f1f1a;
+  --sidebar-border: #cfe5d9;
+  --sidebar-ring: #2a68af;
+}
+
+
+
+@theme inline {
+  --font-sans: 'Poppins', 'Segoe UI', 'system-ui', 'sans-serif';
+  --font-mono: 'Consolas', 'Courier New', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: radial-gradient(
+      circle at 8% 12%,
+      #d6efe3 0%,
+      #edf6f2 38%,
+      #e4efff 100%
+    );
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .dashboard-panel {
+    @apply rounded-2xl border border-border/80 bg-card shadow-[0_14px_40px_-28px_rgba(15,23,42,0.5)];
+  }
+
+  .dashboard-section {
+    @apply animate-in fade-in duration-300;
+  }
+}
