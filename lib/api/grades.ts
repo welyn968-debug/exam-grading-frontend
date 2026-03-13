@@ -115,11 +115,8 @@ function normalizeGrade(payload: unknown): Grade {
 }
 
 export async function listExamGrades(
-  examId: string,
-  options: {
-    needsReview?: boolean
-    confidenceGt?: number
-  } = {},
+    examId: string | null,
+    options: { needsReview?: boolean; confidenceGt?: number } = {},
 ): Promise<Grade[]> {
   const params = new URLSearchParams()
   if (typeof options.needsReview === 'boolean') {

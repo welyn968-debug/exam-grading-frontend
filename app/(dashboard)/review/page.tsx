@@ -86,8 +86,8 @@ export default function ReviewPage() {
   async function loadGrades(examId: string) {
     try {
       setIsLoading(true)
-      const response = await listExamGrades(examId, { needsReview: false })
-      setGrades(response.length > 0 ? response : fallbackGrades)
+      const response = await listExamGrades(examId, {needsReview: false})
+        setGrades(response.length > 0 ? response : fallbackGrades)
       setMessage(null)
     } catch (err) {
       setGrades(fallbackGrades)

@@ -18,7 +18,7 @@ type PageProps = {
 }
 
 const placeholderImage =
-  'https://unsplash.com/photos/white-printer-paper-faAef6F6luc'
+  'public/papers/reseach_paper.png'
 
 const rubricChecks = [
   'Addresses key concepts',
