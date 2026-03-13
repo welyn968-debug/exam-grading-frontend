@@ -12,10 +12,12 @@ import {
   Settings,
   Sparkles,
   Shield,
+  FlaskConical,
 } from 'lucide-react';
 
 const lecturerMenuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
+  { icon: FlaskConical, label: 'Setup', href: '/setup' },
   { icon: FileText, label: 'My Exams', href: '/exams' },
   { icon: CheckCircle2, label: 'Review Grades', href: '/review' },
   { icon: BarChart3, label: 'Analytics', href: '/analytics' },
@@ -23,6 +25,7 @@ const lecturerMenuItems = [
 
 const departmentMenuItems = [
   { icon: LayoutDashboard, label: 'Department', href: '/department' },
+  { icon: FlaskConical, label: 'Setup', href: '/setup' },
   { icon: Users, label: 'All Lecturers', href: '/lecturers' },
   { icon: ClipboardList, label: 'All Exams', href: '/all-exams' },
   { icon: BarChart3, label: 'Analytics', href: '/department-analytics' },

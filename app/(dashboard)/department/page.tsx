@@ -184,7 +184,7 @@ export default function DepartmentPage() {
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Exams: {row.exams} • Pending reviews: {row.pending}
+                  Exams: {row.exams} â€¢ Pending reviews: {row.pending}
                 </p>
               </div>
             ))}

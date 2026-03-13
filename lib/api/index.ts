@@ -6,6 +6,7 @@ export * from './exams'
 export * from './grades'
 export * from './http'
 export * from './session'
+export * from './testing'
 export * from './types'
 
 export async function verifyInviteToken(token: string): Promise<{

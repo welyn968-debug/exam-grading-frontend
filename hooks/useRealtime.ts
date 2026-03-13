@@ -11,6 +11,9 @@ type RealtimeEvents = {
   grading_progress?: (payload: unknown) => void
   review_ready?: (payload: unknown) => void
   notification?: (payload: unknown) => void
+  testing_ocr_progress?: (payload: unknown) => void
+  testing_grading_progress?: (payload: unknown) => void
+  testing_complete?: (payload: unknown) => void
 }
 
 type RealtimeOptions = {
@@ -57,6 +60,15 @@ export function useRealtime(
     if (events.notification) {
       socket.on('notification', events.notification)
     }
+    if (events.testing_ocr_progress) {
+      socket.on('testing_ocr_progress', events.testing_ocr_progress)
+    }
+    if (events.testing_grading_progress) {
+      socket.on('testing_grading_progress', events.testing_grading_progress)
+    }
+    if (events.testing_complete) {
+      socket.on('testing_complete', events.testing_complete)
+    }
 
     socketRef.current = socket
 
@@ -71,5 +83,8 @@ export function useRealtime(
     events.notification,
     events.ocr_progress,
     events.review_ready,
+    events.testing_complete,
+    events.testing_grading_progress,
+    events.testing_ocr_progress,
   ])
 }

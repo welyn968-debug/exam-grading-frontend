@@ -120,6 +120,38 @@ export type GradingProgressEvent = {
   total?: number
 }
 
+export type TestingStage = 'idle' | 'uploading' | 'ocr' | 'grading' | 'review' | 'approved' | string
+
+export interface TestingRun {
+  id: string
+  examId: string
+  stage: TestingStage
+  status?: string
+  totalSamples: number
+  processed?: number
+  ocrCompleted?: number
+  gradingCompleted?: number
+  createdAt?: string
+  updatedAt?: string
+  message?: string
+}
+
+export interface SampleTestResult {
+  id: string
+  examId?: string
+  runId?: string
+  registrationNumber: string
+  aiScore: number
+  expectedScore?: number
+  delta?: number
+  confidenceScore?: number
+  status?: 'pending' | 'reviewed' | 'approved' | 'flagged' | string
+  aiReasoning?: string
+  ocrText?: string
+  scanUrl?: string
+  verdict?: 'yes' | 'no' | null
+}
+
 export type ApiListResponse<T> =
   | T[]
   | {

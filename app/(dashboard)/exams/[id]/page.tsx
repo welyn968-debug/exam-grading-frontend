@@ -482,6 +482,13 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
               >
                 Go to Bulk Upload
               </Button>
+              <Button
+                variant="outline"
+                className="rounded-xl"
+                onClick={() => (window.location.href = `/exams/${params.id}/setup`)}
+              >
+                Testing & Validation
+              </Button>
               <Button variant="outline" className="rounded-xl" onClick={() => setStep(4)}>
                 Back
               </Button>
