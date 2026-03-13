@@ -17,7 +17,7 @@ type PageProps = {
   params: { gradeId: string }
 }
 
-const placeholderImage = "/public/papers/reseach_paper.jpg"
+const placeholderImage = "/public/papers/reseach_paper.png"
 
 const rubricChecks = [
   'Addresses key concepts',
