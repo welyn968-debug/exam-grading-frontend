@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { ClerkTokenProvider } from '@/components/ClerkTokenProvider'
 import { Space_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ClerkProvider } from '@clerk/nextjs'
@@ -44,12 +45,14 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
+      <ClerkTokenProvider>
       <html lang="en">
         <body className={`${spaceGrotesk.className} antialiased bg-background text-foreground`}>
           {children}
           <Analytics />
         </body>
       </html>
+      </ClerkTokenProvider>
     </ClerkProvider>
   )
 }

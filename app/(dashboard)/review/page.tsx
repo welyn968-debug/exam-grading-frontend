@@ -137,8 +137,8 @@ export default function ReviewPage() {
 
   async function handleApprove(grade: Grade) {
     try {
-      await updateGrade(grade.id, { final_score: grade.finalScore, status: 'reviewed' })
-      setMessage(`Grade ${grade.id} approved.`)
+      await updateGrade(grade.id, { action: 'approve' })
+      setMessage(`Grade approved.`)
       if (selectedExamId) await loadGrades(selectedExamId)
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Could not approve grade.')

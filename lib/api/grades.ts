@@ -29,9 +29,9 @@ function normalizeGrade(payload: unknown): Grade {
   const data = payload as UnknownRecord
   const confidence =
     typeof data.confidence_score === 'number'
-      ? data.confidence_score
+      ? Math.round(data.confidence_score * 100)   // backend sends 0-1, convert to 0-100
       : typeof data.confidenceScore === 'number'
-        ? data.confidenceScore
+        ? data.confidenceScore                      // already 0-100 if from frontend state
         : 0
 
   const needsReview =
@@ -143,9 +143,20 @@ export async function updateGrade(
   gradeId: string,
   payload: Record<string, unknown>,
 ): Promise<Grade> {
+  // Backend expects {action: 'approve'} or {action: 'override', final_score, override_reason}
+  const body: Record<string, unknown> = {}
+  if (payload.override_reason || (payload.final_score !== undefined && payload.action !== 'approve')) {
+    body.action = 'override'
+    body.final_score = payload.final_score
+    if (payload.override_reason) body.override_reason = payload.override_reason
+  } else {
+    body.action = payload.action ?? 'approve'
+    if (payload.final_score !== undefined) body.final_score = payload.final_score
+  }
+
   const response = await request<unknown>(`/grades/${gradeId}`, {
     method: 'PATCH',
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   })
   return normalizeGrade(response)
 }

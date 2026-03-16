@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import { Check, Plus, Upload, X } from 'lucide-react'
 import { LayoutWrapper } from '@/components/layout-wrapper'
 import { FormField } from '@/components/form-field'
@@ -17,9 +17,7 @@ type RubricRow = {
 }
 
 type ExamDetailPageProps = {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 const fallbackExam: Exam = {
@@ -34,6 +32,7 @@ const fallbackExam: Exam = {
 }
 
 export default function ExamDetailPage({ params }: ExamDetailPageProps) {
+  const { id } = use(params)  // unwrap the Promise — required in Next.js 15+
   const [step, setStep] = useState(1)
   const [exam, setExam] = useState<Exam>(fallbackExam)
   const [isLoading, setIsLoading] = useState(true)
@@ -58,10 +57,12 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
     totalMarks: String(fallbackExam.totalMarks),
   })
 
+  const [isSaving, setIsSaving] = useState(false)
+
   async function loadExam() {
     try {
       setIsLoading(true)
-      const response = await getExam(params.id)
+      const response = await getExam(id)
       setExam(response)
       setFormState({
         title: response.title,
@@ -71,7 +72,7 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
       })
       setNotice(null)
     } catch (err) {
-      setExam({ ...fallbackExam, id: params.id })
+      setExam({ ...fallbackExam, id })
       setNotice(err instanceof Error ? `${err.message}. Using fallback detail.` : 'Using fallback detail.')
     } finally {
       setIsLoading(false)
@@ -80,7 +81,7 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
 
   useEffect(() => {
     void loadExam()
-  }, [params.id])
+  }, [id])
 
   useRealtime(
     {
@@ -124,17 +125,20 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
 
   async function handleSaveBasic() {
     try {
-      const updated = await updateExam(params.id, {
-        title: formState.title,
+      setIsSaving(true)
+      await updateExam(id, {
+        course_name: formState.title,
         course_code: formState.courseCode,
         semester: formState.semester,
         total_marks: Number(formState.totalMarks),
       })
-      setExam(updated)
+      await loadExam()           // reload fresh data from backend
       setNotice('Basic information saved.')
       setStep(2)
     } catch (err) {
       setNotice(err instanceof Error ? err.message : 'Failed to save exam data.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -143,27 +147,42 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
       setNotice('Select an answer script (PDF/image) to continue.')
       return
     }
-    setNotice('Answer script saved for this session. Remember to finalize to persist.')
-    setStep(3)
+    try {
+      setIsSaving(true)
+      const payload = new FormData()
+      payload.append('answer_script', answerScript)
+      await updateExam(id, { answer_script: answerScript.name })
+      setNotice('Answer script saved.')
+      setStep(3)
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : 'Failed to save answer script.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   async function handleFinalize() {
     try {
-      await updateExam(params.id, {
-        status: 'ready',
+      setIsSaving(true)
+      await updateExam(id, {
+        status: 'active',
         total_marks: Number(formState.totalMarks),
-        rubric: rubrics.map((rubric) => ({
-          criteria: rubric.criteria,
-          max_marks: rubric.maxMarks,
-          description: rubric.description,
-        })),
+        rubric: Object.fromEntries(
+          rubrics.map((r, i) => [
+            `Q${i + 1}`,
+            { max: r.maxMarks, criteria: [r.criteria, r.description].filter(Boolean) },
+          ])
+        ),
         compulsory_questions: questionRules.compulsory,
         elective_questions: questionRules.elective,
         elective_count: questionRules.electiveCount,
       })
-      setNotice('Exam finalized and ready for grading.')
+      await loadExam()
+      setNotice('Exam saved and set to active.')
     } catch (err) {
       setNotice(err instanceof Error ? err.message : 'Finalization failed.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -258,8 +277,8 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
                 setFormState((prev) => ({ ...prev, totalMarks: event.target.value }))
               }
             />
-            <Button className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSaveBasic}>
-              Save & Continue
+            <Button className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSaveBasic} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save & Continue'}
             </Button>
           </div>
         )}
@@ -328,8 +347,8 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
             )}
 
             <div className="flex gap-2">
-              <Button className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSaveAnswerScript}>
-                Save & Continue
+              <Button className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleSaveAnswerScript} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save & Continue'}
               </Button>
               <Button variant="outline" className="rounded-xl" onClick={() => setStep(1)}>
                 Back
@@ -472,20 +491,20 @@ export default function ExamDetailPage({ params }: ExamDetailPageProps) {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleFinalize}>
-                Submit & Start Grading
+              <Button className="rounded-xl bg-primary hover:bg-primary/90" onClick={handleFinalize} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Submit & Start Grading'}
               </Button>
               <Button
                 variant="outline"
                 className="rounded-xl"
-                onClick={() => (window.location.href = `/exams/${params.id}/upload`)}
+                onClick={() => (window.location.href = `/exams/${id}/upload`)}
               >
                 Go to Bulk Upload
               </Button>
               <Button
                 variant="outline"
                 className="rounded-xl"
-                onClick={() => (window.location.href = `/exams/${params.id}/setup`)}
+                onClick={() => (window.location.href = `/exams/${id}/setup`)}
               >
                 Testing & Validation
               </Button>

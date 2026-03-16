@@ -1,11 +1,12 @@
 import { API_BASE_URL } from './config'
 import {
   clearSessionTokens,
-  getAccessToken,
+  resolveToken,
   getRefreshToken,
   setSessionTokens,
 } from './session'
 import type { ApiError, AuthTokens } from './types'
+
 
 type RequestOptions = {
   skipAuth?: boolean
@@ -77,24 +78,23 @@ function normalizeError(status: number, body: unknown): ApiError {
   }
 }
 
-function buildHeaders(
-  init: RequestInit,
-  options: RequestOptions,
-  token: string | null,
-): Headers {
+async function buildHeaders(
+    init: RequestInit,
+    options: RequestOptions,
+): Promise<Headers> {
   const headers = new Headers(init.headers)
   const hasBody = init.body !== undefined && init.body !== null
   const isFormData =
-    typeof FormData !== 'undefined' && hasBody && init.body instanceof FormData
+      typeof FormData !== 'undefined' && hasBody && init.body instanceof FormData
   if (!isFormData && hasBody && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
-  if (!options.skipAuth && token) {
-    headers.set('Authorization', `Bearer ${token}`)
+  if (!options.skipAuth) {
+    const token = await resolveToken()  // ← resolves from Clerk or localStorage
+    if (token) headers.set('Authorization', `Bearer ${token}`)
   }
   return headers
 }
-
 async function refreshAccessToken(): Promise<string | null> {
   if (refreshPromise) return refreshPromise
 
@@ -142,12 +142,9 @@ export async function request<T>(
   init: RequestInit = {},
   options: RequestOptions = {},
 ): Promise<T> {
-  const token = getAccessToken()
-  const headers = buildHeaders(init, options, token)
-  const response = await fetch(toAbsoluteUrl(path), {
-    ...init,
-    headers,
-  })
+  // const token = getAccessToken()
+  const headers = await buildHeaders(init, options)
+  const response = await fetch(toAbsoluteUrl(path), { ...init, headers })
 
   const body = await parseBody(response)
 

@@ -33,7 +33,7 @@ function normalizeExam(payload: unknown): Exam {
   }
 
   const data = payload as UnknownRecord
-  const titleCandidate = data.title ?? data.name ?? data.course_code
+  const titleCandidate = data.title ?? data.name ?? data.course_name ?? data.course_code
 
   return {
     id: String(data.id ?? data.exam_id ?? 'unknown'),

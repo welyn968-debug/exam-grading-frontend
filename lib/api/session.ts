@@ -50,3 +50,15 @@ export function clearStoredUser(): void {
   if (!isBrowser()) return
   localStorage.removeItem(USER_KEY)
 }
+
+type TokenProvider = () => Promise<string | null>
+let _tokenProvider: TokenProvider | null = null
+
+export function registerTokenProvider(fn: TokenProvider) {
+  _tokenProvider = fn
+}
+
+export async function resolveToken(): Promise<string | null> {
+  if (_tokenProvider) return await _tokenProvider()
+  return getAccessToken() // fallback to localStorage
+}

@@ -60,7 +60,8 @@ export default function ExamsPage() {
   const [error, setError] = useState<string | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [newExamTitle, setNewExamTitle] = useState('')
-  const [newExamCourse, setNewExamCourse] = useState('')
+  const [newExamCoursePrefix, setNewExamCoursePrefix] = useState('')
+  const [newExamCourseNumber, setNewExamCourseNumber] = useState('')
   const [newExamSemester, setNewExamSemester] = useState('Semester 1')
   const [newExamMarks, setNewExamMarks] = useState('100')
   const [createMessage, setCreateMessage] = useState<string | null>(null)
@@ -100,21 +101,28 @@ export default function ExamsPage() {
     event.preventDefault()
     setCreateMessage(null)
 
+    const courseCode = `${newExamCoursePrefix.trim().toUpperCase()}${newExamCourseNumber.trim()}`
+
     const payload = new FormData()
-    payload.append('course_code', newExamCourse)
+    payload.append('course_code', courseCode)
+    payload.append('course_name', newExamTitle)      // backend expects course_name, not title
     payload.append('semester', newExamSemester)
     payload.append('total_marks', newExamMarks)
-    payload.append('title', newExamTitle)
     payload.append('compulsory_questions', JSON.stringify(['Q1', 'Q2']))
     payload.append('elective_questions', JSON.stringify([]))
     payload.append('elective_count', '0')
+    payload.append('rubric', JSON.stringify({        // backend requires rubric
+      Q1: { max: Math.floor(Number(newExamMarks) / 2), criteria: ['accuracy', 'understanding'] },
+      Q2: { max: Math.ceil(Number(newExamMarks) / 2), criteria: ['accuracy', 'understanding'] },
+    }))
 
     try {
       await createExam(payload)
       setCreateMessage('Exam created successfully.')
       setShowCreate(false)
       setNewExamTitle('')
-      setNewExamCourse('')
+      setNewExamCoursePrefix('')
+      setNewExamCourseNumber('')
       setNewExamSemester('Semester 1')
       setNewExamMarks('100')
       await loadExams()
@@ -163,16 +171,23 @@ export default function ExamsPage() {
           >
             <input
               className="rounded-xl border border-border bg-input px-3 py-2 text-sm"
-              placeholder="Exam title"
+              placeholder="Course name (e.g. Data Structures)"
               value={newExamTitle}
               onChange={(event) => setNewExamTitle(event.target.value)}
               required
             />
             <input
               className="rounded-xl border border-border bg-input px-3 py-2 text-sm"
-              placeholder="Course code"
-              value={newExamCourse}
-              onChange={(event) => setNewExamCourse(event.target.value)}
+              placeholder="Course code (e.g. MATH, BIT, CS)"
+              value={newExamCoursePrefix}
+              onChange={(event) => setNewExamCoursePrefix(event.target.value)}
+              required
+            />
+            <input
+              className="rounded-xl border border-border bg-input px-3 py-2 text-sm"
+              placeholder="Course number (e.g. 114, 301)"
+              value={newExamCourseNumber}
+              onChange={(event) => setNewExamCourseNumber(event.target.value)}
               required
             />
             <input
